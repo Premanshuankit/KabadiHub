@@ -2,6 +2,7 @@ const User = require('../model/User')
 const bcrypt = require('bcrypt')
 const ROLES_LIST = require('../config/roles_list')
 const registerSchema = require('../validators/registerValidator')
+const logger = require('../utils/logger')
 
 const handleNewUser = async (req, res) => {
     const {user, fname, lname, email, mobile, address, pwd, roles} = req.body
@@ -48,6 +49,7 @@ const handleNewUser = async (req, res) => {
             password: hashedPwd
         })
         console.log(newUser)
+        logger.info(`newUser, ${newUser}`)
         res.status(201).send(`user with name '${user}' was created!!!`)
 
     } catch (error) {
