@@ -1,6 +1,7 @@
 const User = require('../model/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const logger = require('../utils/logger')
 
 const handleLogin = async (req, res) => {
     const {identifier, pwd} = req.body
@@ -62,7 +63,7 @@ const handleLogin = async (req, res) => {
                 }
             },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "15m" }
+            { expiresIn: "59m" }
         )
 
 
@@ -83,6 +84,7 @@ const handleLogin = async (req, res) => {
         foundUser.refreshToken = refreshToken
         const result = await foundUser.save()
         console.log(result)
+        logger.info(`logged in relic msg, ${result}`)
 
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000})
         // res.send('successfully logged in')

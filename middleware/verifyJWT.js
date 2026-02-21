@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const logger = require('../utils/logger')
 
 const verifyJwt = ( req, res, next) => {
     const authHeader = req.headers.Authorization || req.headers.authorization
@@ -6,6 +7,7 @@ const verifyJwt = ( req, res, next) => {
         return res.sendStatus(401).send('unauthorised access!!')
     }
     console.log(authHeader, ' authHeader')
+    logger.info(authHeader, ' authHeader')
     const token = authHeader.split(' ')[1]
     jwt.verify(
         token,
@@ -20,6 +22,7 @@ const verifyJwt = ( req, res, next) => {
             req.roles = decoded.UserInfo.roles 
 
             console.log(decoded, 'decoded')
+            logger.info(decoded, 'decoded')
             next()
         }
     )

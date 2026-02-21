@@ -1,6 +1,7 @@
 const User = require('../model/User')
 
 const jwt = require('jsonwebtoken')
+const logger = require('../utils/logger')
 
 const handleRefreshToken =  async (req, res) => {
     const cookies = req.cookies
@@ -9,6 +10,7 @@ const handleRefreshToken =  async (req, res) => {
         return res.status(400).sendStatus(401)
     }
     console.log(cookies.jwt)
+    logger.info(`cookie.jwt,,, ${cookies.jwt}`)
     const refreshToken = cookies.jwt
 
     const foundUser = await User.findOne({ refreshToken }).exec()

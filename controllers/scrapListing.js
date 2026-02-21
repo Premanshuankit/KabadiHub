@@ -1,11 +1,13 @@
 const ScrapListing = require('../model/ScrapListing')
 const SCRAP_TYPES = require('../config/scrapTypes')
+const logger = require('../utils/logger')
 
 const createListing = async (req, res) => {
     try {
         // Get buyerId from authenticated user
         const buyerId = req.userId
         console.log("buyerId:", buyerId)
+        logger.info("buyerId:", buyerId)
 
         const { scrapType, ratePerKg } = req.body
         // const { scrapType, ratePerKg, minimumQuantity } = req.body

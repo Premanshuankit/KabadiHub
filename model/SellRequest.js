@@ -14,7 +14,7 @@ const sellRequestSchema = new mongoose.Schema(
             required: true,
             trim: true,
             lowercase: true,
-            enum: SCRAP_TYPES
+            enum: SCRAP_TYPES.map(item => item.type)
         },
 
         quantity: {
