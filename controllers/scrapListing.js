@@ -1,4 +1,5 @@
 const ScrapListing = require('../model/ScrapListing')
+const SCRAP_TYPES = require('../config/scrapTypes')
 
 const createListing = async (req, res) => {
     try {
@@ -56,6 +57,33 @@ const getAllListing = async (req, res) => {
     res.json(allScrapListing)
 }
 
+const getAllListingByBuyerId = async (req, res) => {
+
+    try {
+        const { buyerId } = req.params
+
+        if (!buyerId) {
+            return res.status(400).json({
+                message: "buyerId parameter by ID is required"
+            })
+        }
+
+        const scrapListings = await ScrapListing.find({ buyerId })
+        if (!scrapListings.length) {
+            return res.status(404).json({
+                message: "No Scrap Listings found for this buyer"
+            })
+        }
+        return res.json(scrapListings)
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Server error",
+            error: error.message
+        })
+    }
+}
+
 const updateListing = async (req, res) => {
     const { id } = req.params
     const { ratePerKg } = req.body
@@ -75,4 +103,40 @@ const updateListing = async (req, res) => {
     res.json(result);
 }
 
-module.exports = { createListing, getAllListing, updateListing } 
+const createAllListing = async (req, res) => {
+    try {
+
+        const buyerId = req.userId
+
+        const existingListings = await ScrapListing.find({ buyerId })
+        const existingTypes = existingListings.map(l => l.scrapType)
+
+        const listingsToCreate = SCRAP_TYPES
+            .filter(item => !existingTypes.includes(item.type))
+            .map(item => ({
+                buyerId,
+                scrapType: item.type,
+                ratePerKg: item.defaultRate
+            }))
+
+        if (listingsToCreate.length > 0) {
+            await ScrapListing.insertMany(listingsToCreate)
+        }
+
+        const allListings = await ScrapListing.find({ buyerId })
+
+        return res.json({
+            message: "Scrap catalog initialized successfully",
+            total: allListings.length,
+            data: allListings
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Server error",
+            error: error.message
+        })
+    }
+}
+
+module.exports = { createListing, getAllListing, getAllListingByBuyerId, updateListing, createAllListing } 
