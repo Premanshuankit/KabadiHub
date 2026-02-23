@@ -28,6 +28,9 @@ app.use(express.json())
 
 app.use('/register', routerRegister)
 app.use('/auth', routerAuth)
+
+app.use(verifyJwt)
+
 app.use('/listing', routerListing)
 app.use('/seller', routerSeller)
 app.use('/order', routerOrder)
@@ -35,7 +38,6 @@ app.use('/inventory', routerInventory)
 // app.use('/refresh', routerRefresh)
 // app.use('/logout', routerLogout)
 
-app.use(verifyJwt)
 
 const PORT = process.env.PORT || 3000
 mongoose.connection.once('open', () => {
