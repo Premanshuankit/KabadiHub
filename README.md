@@ -8,18 +8,11 @@ Built with secure authentication, cloud database, logging, and production deploy
 
 ## Live Demo
 
-Frontend: https://your-frontend.onrender.com  
 Backend API: https://scrapwallah.onrender.com
 
 ---
 
 ## Tech Stack
-
-### Frontend
-- React.js
-- Axios
-- React Router
-- to be added more
 
 ### Backend
 - Node.js
@@ -34,7 +27,7 @@ Backend API: https://scrapwallah.onrender.com
 - MongoDB Atlas (Cloud Database)
 
 ### Deployment
-- Render (Backend & Frontend)
+- Render
 - MongoDB Atlas (Cloud Storage)
 
 ## Features
@@ -57,7 +50,7 @@ Backend API: https://scrapwallah.onrender.com
 ### Clone Repository
 
 
-git clone ""
+git clone https://github.com/Premanshuankit/ScrapWala.git  --> backend
 
 cd folder_name
 
@@ -98,7 +91,6 @@ npm start
 ## Production Deployment
 
 - Backend deployed on Render Web Service
-- Frontend deployed as Static Site on Render
 - MongoDB hosted on MongoDB Atlas
 - Secrets stored securely using Render Environment Variables
 
@@ -131,7 +123,7 @@ npm start
 - Add admin dashboard
 - Add rate limiting
 - Add email verification
-- Add Docker support
+- Add mobile verification
 
 ---
 

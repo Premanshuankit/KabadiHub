@@ -7,6 +7,7 @@ const logger = require('./utils/logger')
 
 const corsOptions = require('./config/corsOptions')
 const routerRegister = require('./routes/register')
+const routerHome = require('./routes/home')
 const routerAuth = require('./routes/auth')
 const routerListing = require('./routes/listing')
 const routerSeller = require('./routes/sellRequest')
@@ -26,6 +27,7 @@ app.use(cors(corsOptions));
 app.use(express.json())
 // app.use(cookieParser())
 
+app.use('/', routerHome)
 app.use('/register', routerRegister)
 app.use('/auth', routerAuth)
 app.use('/listing', routerListing)
