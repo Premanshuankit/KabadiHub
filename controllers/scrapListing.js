@@ -25,23 +25,29 @@ const createListing = async (req, res) => {
             })
         }
 
-        // Check if buyer already has listing for this scrapType
-        const match = await ScrapListing.findOne({
+        // Check if listing exists
+        const existingListing = await ScrapListing.findOne({
             buyerId,
-            scrapType: scrapType.toLowerCase()
-        })
+            scrapType: scrapType.toLowerCase(),
+        });
 
-        if (match) {
-            return res.status(409).json({
-                message: "Listing for this scrap type already exists"
-            })
+        if (existingListing) {
+            // UPDATE instead of 409
+            existingListing.ratePerKg = ratePerKg;
+            await existingListing.save();
+
+            return res.status(200).json({
+                message: "Listing updated successfully",
+                data: existingListing,
+            });
         }
 
+        // CREATE if not exists
         const listing = await ScrapListing.create({
             buyerId,
             scrapType: scrapType.toLowerCase(),
-            ratePerKg
-        })
+            ratePerKg,
+        });
 
         return res.status(201).json({ message: "Listing created successfully", data: listing })
 

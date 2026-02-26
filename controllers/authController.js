@@ -65,7 +65,14 @@ const handleLogin = async (req, res) => {
 
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000})
         // res.send('successfully logged in')
-        res.json({ accessToken })
+        // res.json({ accessToken })
+        res.json({ accessToken,
+                user: {
+                    id: foundUser._id,
+                    username: foundUser.username,
+                    roles: foundUser.roles,
+                },
+        });
     } else {
         res.status(401).send('please enter correct password')
     }

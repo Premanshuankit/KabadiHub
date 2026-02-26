@@ -15,7 +15,7 @@ const handleRefreshToken =  async (req, res) => {
 
     const foundUser = await User.findOne({ refreshToken }).exec()
     if (!foundUser) {
-        return res.sendStatus(403).send('unauthorised access') // forbidden
+        return res.status(403).json({ message: 'unauthorised access' }) // forbidden
     }
 
     jwt.verify(
@@ -37,6 +37,7 @@ const handleRefreshToken =  async (req, res) => {
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn : '1d'}
         )
+        logger.info('access token issued again', accessToken)
         res.json({ accessToken })
         }
     )

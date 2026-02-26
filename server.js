@@ -16,7 +16,7 @@ const routerInventory = require('./routes/inventory')
 const routerRefresh = require('./routes/refresh')
 // const routerLogout = require('./routes/api/logout')
 const verifyJwt = require('./middleware/verifyJWT')
-// const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbConn')
 
@@ -25,7 +25,7 @@ connectDB()
 
 app.use(cors(corsOptions));
 app.use(express.json())
-// app.use(cookieParser())
+app.use(cookieParser())
 
 app.use('/', routerHome)
 app.use('/register', routerRegister)

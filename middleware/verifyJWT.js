@@ -4,7 +4,7 @@ const logger = require('../utils/logger')
 const verifyJwt = ( req, res, next) => {
     const authHeader = req.headers.Authorization || req.headers.authorization
     if (!authHeader?.startsWith('Bearer ')) {
-        return res.sendStatus(401).send('unauthorised access!!')
+        return res.status(401).json({ message: 'Unauthorized access' })
     }
     console.log(authHeader, ' authHeader')
     logger.info(authHeader, ' authHeader')
