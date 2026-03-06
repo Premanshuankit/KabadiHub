@@ -93,6 +93,12 @@ const userSchema = new mongoose.Schema({
     toObject: { flattenMaps: true }
 })
 
+userSchema.index({ firstname: 1 });
+userSchema.index({ shopname: 1 });
+userSchema.index({ "address.city": 1 });
+userSchema.index({ "address.pincode": 1 });
+userSchema.index({ "address.city": 1, "address.pincode": 1 });
+
 const userModel = mongoose.model('User', userSchema)
 
 module.exports = userModel
