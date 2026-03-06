@@ -35,7 +35,7 @@ const sellRequestSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ['OPEN', 'ACCEPTED', 'COLLECTED'],
+            enum: ['OPEN', 'ACCEPTED', 'COLLECTED', 'REJECTED'],
             default: 'OPEN'
         }
     },

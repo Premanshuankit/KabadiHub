@@ -15,7 +15,7 @@ const routerSeller = require('./routes/sellRequest')
 const routerOrder = require('./routes/orderPlaced')
 const routerInventory = require('./routes/inventory')
 const routerRefresh = require('./routes/refresh')
-// const routerLogout = require('./routes/api/logout')
+const routerLogout = require('./routes/logout')
 const verifyJwt = require('./middleware/verifyJWT')
 const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose')
@@ -32,6 +32,8 @@ app.use("/uploads", express.static("uploads"));
 app.use('/', routerHome)
 app.use('/register', routerRegister)
 app.use('/auth', routerAuth)
+app.use('/refresh', routerRefresh)
+app.use('/logout', routerLogout)
 
 app.use(verifyJwt)
 
@@ -40,8 +42,6 @@ app.use('/listing', routerListing)
 app.use('/seller', routerSeller)
 app.use('/order', routerOrder)
 app.use('/inventory', routerInventory)
-app.use('/refresh', routerRefresh)
-// app.use('/logout', routerLogout)
 
 
 const PORT = process.env.PORT || 3000
