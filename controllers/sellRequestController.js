@@ -60,6 +60,7 @@ const getSellerRequests = async (req, res) => {
       .populate("buyerId", "firstname shopname mobile")
       .sort({ createdAt: -1 });
 
+    console.log('sellerId from getSellerRequests', requests)
     return res.json(requests);
 
   } catch (error) {

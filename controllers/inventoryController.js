@@ -2,134 +2,145 @@ const Order = require('../model/OrderPlaced')
 const Inventory = require('../model/Inventory')
 const logger = require('../utils/logger')
 
-// const completeOrder = async (req, res) => {
-//     try {
+const getInventory = async (req, res) => {
 
-//         const { orderId } = req.params
-//         const buyerId = req.userId
+  try {
 
-//         const order = await Order.findById(orderId)
+    const buyerId = req.userId
+    console.log('buyerId from getInventory', buyerId)
 
-//         if (!order) {
-//             return res.status(404).json({
-//                 message: "Order not found"
-//             })
-//         }
+    const inventory = await Inventory.find({ buyerId })
+      .select("scrapType totalQuantity averageCostPrice").lean()
 
-//         // Ensure only buyer who created order can complete it
-//         if (order.buyerId.toString() !== buyerId) {
-//             return res.status(403).json({
-//                 message: "Not authorized / different buyer"
-//             })
-//         }
+    res.json(inventory)
 
-//         if (order.status !== 'SCHEDULED') {
-//             return res.status(400).json({
-//                 message: "Order cannot be completed"
-//             })
-//         }
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Failed to fetch inventory" })
+  }
 
-//         // Update inventory
-
-//         const existingInventory = await Inventory.findOne({
-//             buyerId,
-//             scrapType: order.scrapType
-//         })
-
-//         if (existingInventory) {
-
-//             // Calculate new average cost
-//             const newTotalQuantity =
-//                 existingInventory.totalQuantity + order.quantity
-
-//             const newAverageCost =
-//                 (
-//                     (existingInventory.totalQuantity * existingInventory.averageCostPrice) +
-//                     (order.quantity * order.agreedRate)
-//                 ) / newTotalQuantity
-
-//             existingInventory.totalQuantity = newTotalQuantity
-//             existingInventory.averageCostPrice = newAverageCost
-
-//             await existingInventory.save()
-
-//         } else {
-
-//             await Inventory.create({
-//                 buyerId,
-//                 scrapType: order.scrapType,
-//                 totalQuantity: order.quantity,
-//                 averageCostPrice: order.agreedRate
-//             })
-//         }
-
-//         // Update order status
-//         order.status = 'COMPLETED'
-//         await order.save()
-
-//         return res.json({
-//             message: "Order completed and inventory updated successfully"
-//         })
-
-//     } catch (error) {
-//         return res.status(500).json({
-//             message: "Server error",
-//             error: error.message
-//         })
-//     }
-// }
+}
 
 const completeOrder = async (req, res) => {
+  try {
 
     const { orderId } = req.params
-    const buyerId = req.userId
+    const buyerId = req.user.id   // safer than req.userId
 
     const order = await Order.findById(orderId)
-    console.log('order', order)
-    logger.info(`order, ${order}`)
-    if (!order || order.status !== 'SCHEDULED')
-        return res.status(400).json({ message: "Invalid order" })
+
+    if (!order)
+      return res.status(404).json({ message: "Order not found" })
+
+    if (order.status !== "SCHEDULED")
+      return res.status(400).json({ message: "Order already processed" })
+
+    // ensure buyer owns the order
+    if (order.buyerId.toString() !== buyerId)
+      return res.status(403).json({ message: "Unauthorized" })
 
     let inventory = await Inventory.findOne({
-        buyerId,
-        scrapType: order.scrapType
+      buyerId,
+      scrapType: order.scrapType
     })
 
+    // create inventory if not exists
     if (!inventory) {
-        inventory = await Inventory.create({
-            buyerId,
-            scrapType: order.scrapType,
-            totalQuantity: 0,
-            averageCostPrice: 0
-        })
+      inventory = new Inventory({
+        buyerId,
+        scrapType: order.scrapType,
+        totalQuantity: 0,
+        averageCostPrice: 0,
+        movements: []
+      })
     }
 
-    // Calculate new average cost
     const newTotalQty = inventory.totalQuantity + order.quantity
 
     const newAvg =
-        ((inventory.totalQuantity * inventory.averageCostPrice) +
-        (order.quantity * order.agreedRate))
-        / newTotalQty
+      ((inventory.totalQuantity * inventory.averageCostPrice) +
+        (order.quantity * order.agreedRate)) / newTotalQty
 
     inventory.totalQuantity = newTotalQty
     inventory.averageCostPrice = newAvg
 
     inventory.movements.push({
-        type: 'IN',
-        quantity: order.quantity,
-        rate: order.agreedRate,
-        totalAmount: order.totalAmount,
-        partyId: order.sellerId
+      type: "IN",
+      quantity: order.quantity,
+      rate: order.agreedRate,
+      totalAmount: order.totalAmount,
+      partyId: order.sellerId,
+      orderId: order._id
     })
 
     await inventory.save()
 
-    order.status = 'COMPLETED'
+    order.status = "COMPLETED"
     await order.save()
 
-    res.json({ message: "Order completed & inventory updated" })
+    res.json({
+      message: "Order completed & inventory updated",
+      inventory
+    })
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Server error" })
+  }
 }
+
+
+// const completeOrder = async (req, res) => {
+
+//     const { orderId } = req.params
+//     const buyerId = req.userId
+
+//     const order = await Order.findById(orderId)
+//     console.log('order', order)
+//     logger.info(`order, ${order}`)
+//     if (!order || order.status !== 'SCHEDULED')
+//         return res.status(400).json({ message: "Invalid order" })
+
+//     let inventory = await Inventory.findOne({
+//         buyerId,
+//         scrapType: order.scrapType
+//     })
+
+//     if (!inventory) {
+//         inventory = await Inventory.create({
+//             buyerId,
+//             scrapType: order.scrapType,
+//             totalQuantity: 0,
+//             averageCostPrice: 0
+//         })
+//     }
+
+//     // Calculate new average cost
+//     const newTotalQty = inventory.totalQuantity + order.quantity
+
+//     const newAvg =
+//         ((inventory.totalQuantity * inventory.averageCostPrice) +
+//         (order.quantity * order.agreedRate))
+//         / newTotalQty
+
+//     inventory.totalQuantity = newTotalQty
+//     inventory.averageCostPrice = newAvg
+
+//     inventory.movements.push({
+//         type: 'IN',
+//         quantity: order.quantity,
+//         rate: order.agreedRate,
+//         totalAmount: order.totalAmount,
+//         partyId: order.sellerId
+//     })
+
+//     await inventory.save()
+
+//     order.status = 'COMPLETED'
+//     await order.save()
+
+//     res.json({ message: "Order completed & inventory updated" })
+// }
 
 const sellToFactory = async (req, res) => {
     try {
@@ -196,4 +207,4 @@ const sellToFactory = async (req, res) => {
 
 
 
-module.exports = { completeOrder, sellToFactory }
+module.exports = { getInventory, completeOrder, sellToFactory }
