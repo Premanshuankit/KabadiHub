@@ -26,8 +26,8 @@ const registerSchema = Joi.object({
         pincode: Joi.string().required()
     }).required(),
 
-    shopname: Joi.string().min(5).required(),
-    shopImage: Joi.any(),
+    shopname: Joi.string().min(5).allow("", null).optional(),
+    shopImage: Joi.any().optional(),
 
     pwd: Joi.string().min(6).max(15).required()
 })
