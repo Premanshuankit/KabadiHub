@@ -5,21 +5,26 @@ const handleLogout =  async (req, res) => {
     const cookies = req.cookies
     console.log('cookies : ', cookies)
 
-    const refreshToken = cookies.jwt
+    if (!cookies?.jwt) {
+        return res.status(204).json({ message: "No refresh token cookie" });
+    }
 
+    const refreshToken = cookies.jwt;
     // is refresh token in the db?
     const foundUser = await User.findOne({ refreshToken }).exec()
     if (!foundUser) {
-        return res.sendStatus(403)
+        res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
+        return res.status(403).json({ message: "User not found" });
     }
 
-    // delete refresh token in the db
-    foundUser.refreshToken = ''
-    const result = await foundUser.save()
-    console.log('logout success : ', result)
-    
-    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true}) // secure: true  -- only serves on https
-    res.status(200).json({ message: "Logout successful" });
-}
+    foundUser.refreshToken = "";
+    await foundUser.save();
+
+    console.log("logout success");
+
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true})
+
+    return res.status(200).json({ message: "Logout successful" });
+};
 
 module.exports = { handleLogout }
