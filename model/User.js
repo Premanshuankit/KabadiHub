@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     },
     shopname: {
         type: String,
-        required: true,
+        default: null,
         trim: true,
         minlength: 5
     },
